@@ -493,6 +493,38 @@
 
     <!-- ── NEW SECTION STYLES (additive only) ── -->
     <style>
+        /* ── RADAR OVERVIEW CARD ── */
+        .radar-overview-card {
+            background: var(--bg-1); border: 1px solid var(--border);
+            border-radius: 10px; padding: 16px;
+            box-shadow: var(--shadow-card);
+            display: flex; gap: 18px; align-items: stretch;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .radar-overview-card:hover { border-color: var(--border-active); box-shadow: var(--shadow-card-hover); }
+        .radar-chart-wrap { flex: 0 0 48%; max-width: 48%; display: flex; align-items: center; justify-content: center; }
+        .radar-text-wrap  { flex: 1; display: flex; flex-direction: column; justify-content: space-between; min-width: 0; }
+        .radar-text-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 6px; }
+        .radar-score-row  { display: flex; align-items: baseline; gap: 5px; margin-bottom: 10px; }
+        .radar-score-val  { font-family: 'JetBrains Mono', monospace; font-size: 38px; font-weight: 700; color: var(--text-primary); letter-spacing: -2px; line-height: 1; }
+        .radar-score-max  { font-family: 'JetBrains Mono', monospace; font-size: 14px; color: var(--text-dim); }
+        .radar-score-badge {
+            margin-left: 6px; padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 700;
+            background: rgba(42,158,104,0.12); color: var(--green); border: 1px solid rgba(42,158,104,0.25);
+            font-family: 'Syne', sans-serif;
+        }
+        .radar-summary { font-size: 11.5px; color: var(--text-secondary); line-height: 1.55; flex: 1; margin-bottom: 10px; }
+        .radar-summary strong { color: var(--text-primary); font-weight: 600; }
+        .radar-kpi-row { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        .radar-kpi {
+            display: flex; align-items: center; gap: 5px;
+            font-size: 11px; color: var(--text-secondary);
+            background: var(--bg-0); border-radius: 5px; padding: 4px 7px;
+        }
+        .radar-kpi-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+        .radar-kpi span:nth-child(2) { flex: 1; }
+        .radar-kpi-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 600; color: var(--text-primary); }
+
         /* ── SECTION DIVIDERS ── */
         .analysis-section-gap { height: 10px; }
 
@@ -601,6 +633,233 @@
         .ki-conf-dots { display: flex; gap: 3px; }
         .ki-conf-dot { width: 8px; height: 8px; border-radius: 2px; background: var(--bg-4); }
         .ki-conf-dot.filled { background: var(--accent); }
+    </style>
+
+    <!-- ══════════════════════════════════════════════════
+         REFINEMENT LAYER — quiet luxury, additive only
+    ══════════════════════════════════════════════════ -->
+    <style>
+        /* ── Softer light-theme palette ── */
+        [data-theme="light"] {
+            --bg-0: #f5f3ef;
+            --bg-1: #ffffff;
+            --bg-2: #f5f3ef;
+            --bg-3: #edeae3;
+            --bg-4: #e3dfd7;
+            --border: rgba(0,0,0,0.055);
+            --border-active: rgba(0,152,126,0.35);
+            --text-primary: #1c2128;
+            --text-secondary: #6b7585;
+            --text-dim: #adb5c0;
+            --accent: #00907a;
+            --accent-dim: rgba(0,144,122,0.08);
+            --accent-glow: rgba(0,144,122,0.15);
+            --amber: #b87000;
+            --amber-dim: rgba(184,112,0,0.08);
+            --red: #b83c3c;
+            --green: #24906a;
+            --shadow-card: 0 1px 4px rgba(0,0,0,0.05);
+            --shadow-card-hover: 0 4px 16px rgba(0,0,0,0.08);
+            --nav-bg: rgba(255,255,255,0.96);
+            --viewer-bg: #edeae3;
+        }
+
+        /* ── Softer dark-theme palette ── */
+        [data-theme="dark"] {
+            --border: rgba(255,255,255,0.055);
+            --text-secondary: #7a8a9a;
+            --text-dim: #3e4e62;
+            --shadow-card: none;
+        }
+
+        /* ── Nav: lighter, less chrome ── */
+        nav {
+            height: 34px;
+            box-shadow: 0 1px 0 var(--border);
+        }
+        .nav-badge {
+            font-size: 9.5px;
+            padding: 1px 7px;
+            border: none;
+            background: var(--bg-3);
+            color: var(--text-dim);
+            border-radius: 4px;
+        }
+        .nav-brand-icon {
+            width: 20px; height: 20px;
+            border-radius: 4px;
+        }
+        .nav-brand-name { font-size: 12.5px; }
+        .breadcrumb { font-size: 10.5px; }
+        .theme-toggle { border: none; background: transparent; }
+        .theme-toggle:hover { background: var(--bg-3); border: none; }
+
+        /* ── Sidebar: quieter ── */
+        .sidebar-section-title {
+            letter-spacing: 0.8px;
+            font-size: 8.5px;
+            opacity: 0.7;
+        }
+        .list-item { font-size: 12px; }
+        .list-item .badge {
+            font-size: 9px;
+            background: transparent;
+            color: var(--text-dim);
+            padding: 0;
+        }
+        .tab-btn { font-size: 10.5px; letter-spacing: 0; }
+
+        /* ── Cards: borderless with whisper shadow ── */
+        .metric-card, .full-card, .spark-card, .ring-card,
+        .improve-item, .ki-card, .radar-overview-card {
+            border-color: var(--border);
+            box-shadow: var(--shadow-card);
+        }
+        .metric-card:hover, .full-card:hover, .spark-card:hover,
+        .ring-card:hover, .improve-item:hover, .ki-card:hover,
+        .radar-overview-card:hover {
+            box-shadow: var(--shadow-card-hover);
+        }
+
+        /* ── Progress bars: ultra-thin ── */
+        .progress-bar-bg { height: 2px; margin-top: 8px; }
+
+        /* ── Metric values: slightly tighter ── */
+        .metric-value { font-size: 20px; }
+        .metric-label { letter-spacing: 0.6px; font-size: 9px; }
+        .metric-status { font-size: 9px; padding: 1px 6px; }
+
+        /* ── Status badges: desaturated ── */
+        .status-good {
+            background: rgba(36,144,106,0.07);
+            color: var(--green);
+            border: 1px solid rgba(36,144,106,0.14);
+        }
+        .status-warn {
+            background: rgba(184,112,0,0.07);
+            color: var(--amber);
+            border: 1px solid rgba(184,112,0,0.14);
+        }
+
+        /* ── Pane headers: minimal ── */
+        .pane-header {
+            padding: 9px 14px;
+            background: transparent;
+        }
+        .pane-header-pill {
+            font-size: 8.5px;
+            padding: 1px 6px;
+            background: var(--bg-3);
+            color: var(--text-dim);
+            border: none;
+        }
+        .pane-header-title { letter-spacing: 1px; font-size: 9.5px; }
+
+        /* ── Section headers ── */
+        .section-title { font-size: 12.5px; font-weight: 600; }
+        .section-subtitle { font-size: 10px; }
+
+        /* ── Chat bubbles: softer ── */
+        .chat-bubble.ai {
+            background: var(--bg-2);
+            border-color: var(--border);
+            box-shadow: none;
+        }
+        .chat-sender { font-size: 8.5px; letter-spacing: 0.3px; margin-bottom: 4px; }
+        .quick-chip {
+            font-size: 10px;
+            padding: 3px 9px;
+            border-color: var(--border);
+        }
+        .chat-input-area { background: var(--bg-1); padding: 10px 12px; }
+        .chat-input-area input { border-radius: 6px; }
+
+        /* ── Status bar: very quiet ── */
+        .statusbar {
+            height: 22px;
+            font-size: 9.5px;
+            opacity: 0.75;
+        }
+        .status-dot { width: 5px; height: 5px; }
+
+        /* ── Viewer toolbar & stats: leaner ── */
+        .viewer-btn { font-size: 9.5px; padding: 3px 8px; }
+        .viewer-stat { font-size: 9.5px; padding: 2px 6px; }
+
+        /* ── Resizers: near-invisible ── */
+        .resizer { width: 6px; background: transparent; border-color: var(--border); }
+        .h-resizer { height: 6px; }
+        .h-resizer-dot { width: 14px; }
+
+        /* ── Improve items: less icon noise ── */
+        .improve-prio { width: 24px; height: 24px; font-size: 11px; }
+        .improve-title { font-size: 12px; }
+        .improve-desc { font-size: 11px; }
+        .improve-chip { font-size: 8.5px; padding: 2px 6px; }
+
+        /* ── KI cards: minimal top bar ── */
+        .ki-card::before { height: 1px; opacity: 0.4; }
+        .ki-card-title { font-size: 12.5px; }
+        .ki-body { font-size: 11.5px; line-height: 1.6; }
+        .ki-badge-ai { font-size: 8.5px; padding: 1px 6px; }
+        .ki-relation { font-size: 10.5px; padding: 5px 9px; }
+
+        /* ── Action buttons: slightly shorter ── */
+        .action-btn { padding: 6px 12px; font-size: 11.5px; border-radius: 6px; }
+
+        /* ── Material rows ── */
+        .material-name { font-size: 11.5px; }
+        .material-vol { font-size: 10.5px; }
+        .material-pct { font-size: 9.5px; }
+
+        /* ── Ring chart text ── */
+        .ring-title { font-size: 12px; }
+        .ring-desc { font-size: 10.5px; }
+        .ring-tag { font-size: 8.5px; }
+
+        /* ── Cost rows ── */
+        .cost-bar-label { font-size: 11px; }
+        .cost-bar-val { font-size: 9.5px; }
+        .cost-bar-track { height: 4px; border-radius: 2px; }
+        .cost-compare-val { font-size: 14px; }
+        .cost-compare-label { font-size: 8.5px; }
+
+        /* ── Radar card ── */
+        .radar-score-val { font-size: 32px; }
+        .radar-summary { font-size: 11px; line-height: 1.6; }
+        .radar-kpi { font-size: 10.5px; padding: 3px 6px; }
+        .radar-kpi-val { font-size: 10.5px; }
+        .radar-text-label { font-size: 8.5px; letter-spacing: 1px; }
+
+        /* ── Panel (mid-pane detail) ── */
+        .panel-hero { background: var(--bg-1); }
+        .panel-hero-val { font-size: 24px; }
+        .panel-section-title { font-size: 8.5px; letter-spacing: 1px; }
+        .panel-row-key { font-size: 10.5px; }
+        .panel-row-val { font-size: 10.5px; }
+        .panel-text { font-size: 11px; }
+        .panel-tag { font-size: 8.5px; padding: 2px 6px; }
+
+        /* ── Element detail ── */
+        .element-name { font-size: 12.5px; }
+        .element-id { font-size: 9.5px; }
+        .prop-key { font-size: 9px; letter-spacing: 0.6px; }
+        .prop-val { font-size: 12px; }
+        .prop-full .prop-val { font-size: 10.5px; }
+
+        /* ── Metric deltas ── */
+        .metric-delta { font-size: 9.5px; margin-top: 3px; }
+
+        /* ── Analysis content spacing ── */
+        .analysis-content { padding: 16px; gap: 8px; }
+        .metric-card { padding: 13px; }
+        .full-card { padding: 13px; }
+        .ki-card { padding: 14px; }
+        .improve-item { padding: 12px 13px; }
+        .detail-section { padding: 11px 14px; }
+
+        /* ── Tree connector ── */
+        .tree-connector { font-size: 11.5px; padding: 4px 8px; }
     </style>
 </head>
 <body>
@@ -739,6 +998,33 @@
                         <span class="section-subtitle">Stand 11.03.2026</span>
                         <div class="section-line"></div>
                     </div>
+
+                    <!-- ── SOFORTEINSCHÄTZUNG ── -->
+                    <div class="radar-overview-card">
+                        <!-- Spider Web -->
+                        <div class="radar-chart-wrap">
+                            <svg id="radar-svg" viewBox="0 60 300 180" width="100%" height="100%"></svg>
+                        </div>
+                        <!-- KI Bewertung -->
+                        <div class="radar-text-wrap">
+                            <div class="radar-text-label">KI-Soforteinschätzung</div>
+                            <div class="radar-score-row">
+                                <span class="radar-score-val">74</span>
+                                <span class="radar-score-max">/100</span>
+                                <span class="radar-score-badge">Gut</span>
+                            </div>
+                            <p class="radar-summary">
+                                <strong>Projekt Zürich HB Rev.04</strong> liegt insgesamt im guten Bereich. Stärken zeigen sich in der <strong>Tragstruktur</strong> und der <strong>Raumeffizienz</strong>. Handlungsbedarf besteht bei der <strong>CO₂-Bilanz</strong> (3% über Ziel) und der <strong>Energieeffizienz</strong> (MINERGIE-P-Grenzwert knapp überschritten). Die <strong>BIM-Qualität</strong> ist solide, jedoch sind 14 Clashes und 47 fehlende Properties vor Ausschreibungsreife zu bereinigen.
+                            </p>
+                            <div class="radar-kpi-row">
+                                <div class="radar-kpi"><span class="radar-kpi-dot" style="background:var(--green)"></span><span>Tragwerk</span><span class="radar-kpi-val">88</span></div>
+                                <div class="radar-kpi"><span class="radar-kpi-dot" style="background:var(--amber)"></span><span>CO₂</span><span class="radar-kpi-val">62</span></div>
+                                <div class="radar-kpi"><span class="radar-kpi-dot" style="background:var(--amber)"></span><span>Energie</span><span class="radar-kpi-val">58</span></div>
+                                <div class="radar-kpi"><span class="radar-kpi-dot" style="background:var(--green)"></span><span>BIM-Qual.</span><span class="radar-kpi-val">81</span></div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="analysis-grid">
                         <div class="metric-card">
                             <div class="metric-card-header"><span class="metric-label">CO₂-Bilanz</span><span class="metric-status status-warn">⚠ Mittel</span></div>
@@ -1164,7 +1450,8 @@
                 <span class="pane-header-title">Eigenschaften</span>
                 <div class="pane-header-pill">Aktiv</div>
             </div>
-            <div class="mid-scroll">
+            <div class="mid-scroll" id="mid-scroll">
+                <div id="mid-default-view">
                 <div class="detail-section">
                     <div class="element-name">IfcWall_01</div>
                     <div class="element-id">#0x1FA9 · IfcWallStandardCase</div>
@@ -1190,6 +1477,7 @@
                     <div class="progress-bar-bg"><div class="progress-bar bar-amber" style="width:30%"></div></div>
                     <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-dim);margin-top:6px">13.2% des Projektgesamt</div>
                 </div>
+                </div><!-- end mid-default-view -->
             </div>
             <div class="action-row">
                 <button class="action-btn action-btn-primary">⚡ KI-Analyse starten</button>
@@ -1359,6 +1647,758 @@
         createVResizer('resizer1', 'main-pane');
         createVResizer('resizer2', 'mid-pane');
         createHResizer('h-resizer-id', 'ifc-viewer-section', 'main-pane');
+
+        /* ── RADAR / SPIDER CHART ── */
+        (function drawRadar() {
+            const svg = document.getElementById('radar-svg');
+            if (!svg) return;
+
+            const axes = [
+                { label: 'Tragwerk',     val: 88 },
+                { label: 'CO₂-Bilanz',   val: 62 },
+                { label: 'Energie',      val: 58 },
+                { label: 'Raumeffiz.',   val: 84 },
+                { label: 'BIM-Qualität', val: 81 },
+                { label: 'Brandschutz',  val: 90 },
+                { label: 'Nachhalt.',    val: 70 },
+                { label: 'Kosten',       val: 66 },
+            ];
+
+            const N      = axes.length;
+            const cx     = 150, cy = 150, R = 57;
+            const levels = 5;
+            const TWO_PI = Math.PI * 2;
+
+            function pt(i, frac) {
+                const angle = (i / N) * TWO_PI - Math.PI / 2;
+                return {
+                    x: cx + frac * R * Math.cos(angle),
+                    y: cy + frac * R * Math.sin(angle)
+                };
+            }
+
+            const ns = 'http://www.w3.org/2000/svg';
+
+            function el(tag, attrs, parent) {
+                const e = document.createElementNS(ns, tag);
+                for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
+                parent.appendChild(e);
+                return e;
+            }
+
+            // Detect current theme accent colour
+            function accentColor() {
+                return getComputedStyle(document.documentElement)
+                    .getPropertyValue('--accent').trim() || '#00a88c';
+            }
+            function borderColor() {
+                return getComputedStyle(document.documentElement)
+                    .getPropertyValue('--border').trim() || 'rgba(0,0,0,0.08)';
+            }
+            function textDimColor() {
+                return getComputedStyle(document.documentElement)
+                    .getPropertyValue('--text-dim').trim() || '#9aa3b0';
+            }
+
+            function render() {
+                // Clear
+                while (svg.firstChild) svg.removeChild(svg.firstChild);
+
+                const accent = accentColor();
+                const border = borderColor();
+                const dimCol = textDimColor();
+
+                // Defs: gradient fill
+                const defs = el('defs', {}, svg);
+                const grad = el('radialGradient', { id:'rg', cx:'50%', cy:'50%', r:'50%' }, defs);
+                el('stop', { offset:'0%',   'stop-color': accent, 'stop-opacity':'0.25' }, grad);
+                el('stop', { offset:'100%', 'stop-color': accent, 'stop-opacity':'0.04' }, grad);
+
+                // Level polygons
+                for (let l = 1; l <= levels; l++) {
+                    const frac = l / levels;
+                    const pts  = axes.map((_, i) => { const p = pt(i, frac); return `${p.x},${p.y}`; }).join(' ');
+                    el('polygon', { points: pts, fill: 'none', stroke: border, 'stroke-width': '0.8', opacity: '0.9' }, svg);
+                }
+
+                // Axis lines
+                axes.forEach((_, i) => {
+                    const p = pt(i, 1);
+                    el('line', { x1: cx, y1: cy, x2: p.x, y2: p.y, stroke: border, 'stroke-width': '0.8', opacity: '0.8' }, svg);
+                });
+
+                // Data polygon
+                const dataPts = axes.map((a, i) => { const p = pt(i, a.val / 100); return `${p.x},${p.y}`; }).join(' ');
+                el('polygon', { points: dataPts, fill: 'url(#rg)', stroke: accent, 'stroke-width': '1.6', 'stroke-linejoin': 'round', opacity: '0.95' }, svg);
+
+                // Data dots
+                axes.forEach((a, i) => {
+                    const p = pt(i, a.val / 100);
+                    el('circle', { cx: p.x, cy: p.y, r: '3.2', fill: accent }, svg);
+                    el('circle', { cx: p.x, cy: p.y, r: '1.4', fill: '#fff', opacity: '0.9' }, svg);
+                });
+
+                // Labels
+                axes.forEach((a, i) => {
+                    const pOuter = pt(i, 1.28);
+                    const pLabel = pt(i, 1.52);
+                    const angle  = (i / N) * TWO_PI - Math.PI / 2;
+                    const anchor = Math.cos(angle) < -0.15 ? 'end' : Math.cos(angle) > 0.15 ? 'start' : 'middle';
+
+                    // score badge circle
+                    el('circle', { cx: pOuter.x, cy: pOuter.y, r: '10', fill: 'var(--bg-0)', stroke: border, 'stroke-width': '0.8' }, svg);
+                    const scoreCol = a.val >= 80 ? 'var(--green)' : a.val >= 65 ? 'var(--amber)' : 'var(--red)';
+                    el('text', {
+                        x: pOuter.x, y: pOuter.y + 3.5,
+                        'text-anchor': 'middle', 'font-family': 'JetBrains Mono, monospace',
+                        'font-size': '8', 'font-weight': '600', fill: scoreCol
+                    }, svg).textContent = a.val;
+
+                    const labelEl = el('text', {
+                        x: pLabel.x, y: pLabel.y + 3,
+                        'text-anchor': anchor, 'font-family': 'Syne, sans-serif',
+                        'font-size': '8.5', 'font-weight': '600', fill: dimCol
+                    }, svg);
+                    labelEl.textContent = a.label;
+                });
+
+                // Centre score
+                el('text', {
+                    x: cx, y: cy + 5,
+                    'text-anchor': 'middle', 'font-family': 'JetBrains Mono, monospace',
+                    'font-size': '13', 'font-weight': '700', fill: accent, opacity: '0.35'
+                }, svg).textContent = '74';
+            }
+
+            render();
+
+            // Re-render on theme toggle so colours stay in sync
+            document.getElementById('theme-toggle').addEventListener('click', () => {
+                setTimeout(render, 10);
+            });
+        })();
+    </script>
+    <!-- ── CARD CLICK SYSTEM (additive) ── -->
+    <style>
+        /* Clickable card cursor + hover ring */
+        .metric-card[data-clickable], .spark-card[data-clickable], .ring-card[data-clickable],
+        .full-card[data-clickable], .improve-item[data-clickable], .ki-card[data-clickable] {
+            cursor: pointer;
+        }
+        .card-selected {
+            border-color: var(--border-active) !important;
+            box-shadow: 0 0 0 2px var(--accent-glow), var(--shadow-card-hover) !important;
+        }
+
+        /* Mid-panel flash animation */
+        @keyframes panelSlideIn {
+            from { opacity: 0; transform: translateX(8px); }
+            to   { opacity: 1; transform: translateX(0); }
+        }
+        .panel-animate { animation: panelSlideIn 0.18s ease both; }
+
+        /* Panel detail view */
+        .panel-back-btn {
+            display: flex; align-items: center; gap: 6px;
+            padding: 8px 14px; font-size: 11px; font-family: 'JetBrains Mono', monospace;
+            color: var(--text-dim); cursor: pointer; border-bottom: 1px solid var(--border);
+            background: var(--bg-0); transition: color 0.15s, background 0.15s;
+        }
+        .panel-back-btn:hover { color: var(--accent); background: var(--accent-dim); }
+        .panel-hero {
+            padding: 14px 14px 10px;
+            border-bottom: 1px solid var(--border);
+            background: var(--bg-0);
+        }
+        .panel-hero-label { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 5px; }
+        .panel-hero-title { font-weight: 700; font-size: 14px; letter-spacing: -0.3px; color: var(--text-primary); margin-bottom: 2px; }
+        .panel-hero-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text-dim); }
+        .panel-hero-val { font-family: 'JetBrains Mono', monospace; font-size: 28px; font-weight: 700; color: var(--text-primary); letter-spacing: -1.5px; line-height: 1; margin: 8px 0 2px; }
+        .panel-hero-unit { font-size: 12px; color: var(--text-dim); margin-left: 2px; }
+        .panel-hero-delta { font-family: 'JetBrains Mono', monospace; font-size: 10px; margin-top: 3px; }
+        .panel-hero-bar { margin-top: 8px; }
+
+        .panel-section { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+        .panel-section-title { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 8px; }
+        .panel-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 4px 0; gap: 8px; }
+        .panel-row-key { font-size: 11px; color: var(--text-secondary); flex: 1; }
+        .panel-row-val { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text-primary); font-weight: 500; text-align: right; }
+        .panel-row-val.good { color: var(--green); }
+        .panel-row-val.warn { color: var(--amber); }
+        .panel-row-val.bad  { color: var(--red); }
+        .panel-text { font-size: 11.5px; color: var(--text-secondary); line-height: 1.55; }
+        .panel-text strong { color: var(--text-primary); }
+        .panel-text em { color: var(--accent); font-style: normal; font-family: 'JetBrains Mono', monospace; font-size: 10px; }
+        .panel-tag-row { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+        .panel-tag { font-family: 'JetBrains Mono', monospace; font-size: 9px; padding: 2px 7px; border-radius: 4px; background: var(--bg-3); color: var(--text-dim); }
+        .panel-tag.good { background: rgba(42,158,104,0.10); color: var(--green); }
+        .panel-tag.warn { background: var(--amber-dim); color: var(--amber); }
+        .panel-tag.bad  { background: rgba(192,64,64,0.10); color: var(--red); }
+        .panel-tag.accent { background: var(--accent-dim); color: var(--accent); }
+    </style>
+
+    <script>
+    /* ══════════════════════════════════════
+       CARD CLICK → EIGENSCHAFTEN PANEL
+    ══════════════════════════════════════ */
+    (function initCardPanel() {
+
+        /* ── CARD DATA REGISTRY ── */
+        const CARDS = {
+
+            /* ── Projekt-Analysen ── */
+            'CO₂-Bilanz': {
+                label: 'Projekt-Analysen · Nachhaltigkeit',
+                title: 'CO₂-Bilanz',
+                sub: 'Gesamtprojekt Rev.04',
+                val: '14.2', unit: 't CO₂e',
+                delta: { text: '▲ 3% über Zielwert', cls: 'warn' },
+                bar: { w: 68, cls: 'bar-amber' },
+                sections: [
+                    { title: 'Kennwerte', rows: [
+                        { k: 'Gesamtemissionen', v: '14.2 t CO₂e', c: 'warn' },
+                        { k: 'Zielwert SIA 2040', v: '13.8 t CO₂e', c: '' },
+                        { k: 'Abweichung', v: '+0.4 t (+3%)', c: 'bad' },
+                        { k: 'Grösster Treiber', v: 'Beton C25/30', c: '' },
+                        { k: 'Anteil Rohbau', v: '68%', c: 'warn' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Die CO₂-Bilanz liegt <strong>3% über dem SIA-2040-Pfadziel</strong>. Haupttreiber ist die Überdimensionierung von <em>IfcWall_01</em> (+0.18 t) sowie der Verzicht auf Recycling-Beton in der Bodenplatte. Mit zwei gezielten Massnahmen ist das Ziel erreichbar.', tags: ['SIA 2040', 'Handlungsbedarf', 'Rohbau'] },
+                ]
+            },
+
+            'Einsparungspotential': {
+                label: 'Projekt-Analysen · Optimierung',
+                title: 'Einsparungspotential',
+                sub: 'CO₂-Reduktion möglich',
+                val: '15', unit: '%',
+                delta: { text: '▼ Durch 3 Massnahmen erreichbar', cls: 'good' },
+                bar: { w: 15, cls: 'bar-teal' },
+                sections: [
+                    { title: 'Massnahmen', rows: [
+                        { k: 'Recycling-Beton R25', v: '−18% CO₂', c: 'good' },
+                        { k: 'Wanddicke optimieren', v: '−10% Volumen', c: 'good' },
+                        { k: 'Hohlkammer EG-Decke', v: '−8% Kosten', c: 'good' },
+                        { k: 'Gesamtpotential', v: '−2.13 t CO₂e', c: 'good' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Das Gesamteinsparungspotential von <strong>15%</strong> ist realistisch und kostenneutral umsetzbar. Priorität hat der Wechsel zu <em>Recycling-Beton R25</em> in der Bodenplatte — höchste Wirkung bei niedrigem Aufwand.', tags: ['Priorität Hoch', 'Kostenneutral', '+4 DGNB-Punkte'] },
+                ]
+            },
+
+            'Betonvolumen': {
+                label: 'Projekt-Analysen · Mengen',
+                title: 'Betonvolumen',
+                sub: 'BKP 211 · IfcBuilding',
+                val: '42.5', unit: 'm³',
+                delta: { text: '— Erwartungsgemäß (+2% Toleranz)', cls: '' },
+                bar: { w: 55, cls: 'bar-teal' },
+                sections: [
+                    { title: 'Aufschlüsselung', rows: [
+                        { k: 'Fundamente / Bodenplatte', v: '18.2 m³', c: '' },
+                        { k: 'Stützen & Unterzüge', v: '9.8 m³', c: '' },
+                        { k: 'Wandscheiben (inkl. Wall_01)', v: '11.4 m³', c: 'warn' },
+                        { k: 'Decken', v: '3.1 m³', c: '' },
+                        { k: 'Kostenschätzung', v: '€ 12.400', c: '' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Das Betonvolumen liegt <strong>innerhalb der Toleranz</strong>. Jedoch sind 11.4 m³ Wandbeton statistisch <strong>6% über Referenzprojekten</strong> gleicher Nutzung — zurückzuführen auf die überdimensionierten Wandscheiben.', tags: ['Toleranz OK', 'Wandscheiben prüfen'] },
+                ]
+            },
+
+            'Kostenschätzung': {
+                label: 'Projekt-Analysen · Kosten',
+                title: 'Kostenschätzung',
+                sub: 'BKP 211 Beton · vorläufig',
+                val: '12.4', unit: 'k€',
+                delta: { text: '▲ ±8% Unsicherheit (Ausführung offen)', cls: 'warn' },
+                bar: { w: 42, cls: 'bar-amber' },
+                sections: [
+                    { title: 'Kostenrahmen', rows: [
+                        { k: 'Untere Schätzung (−8%)', v: '€ 11.408', c: 'good' },
+                        { k: 'Mittlere Schätzung', v: '€ 12.400', c: '' },
+                        { k: 'Obere Schätzung (+8%)', v: '€ 13.392', c: 'warn' },
+                        { k: 'Einheitspreis Beton C25', v: '€ 292/m³', c: '' },
+                        { k: 'Unsicherheitsfaktor', v: 'Ausführung offen', c: 'warn' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Die Unsicherheit von <strong>±8%</strong> ist für diese Projektphase normal. Sie kann auf <strong>±4%</strong> reduziert werden, sobald der Ausführungsvertrag für BKP 211 vergeben ist. <em>Baugrundrisiko</em> noch nicht eingepreist.', tags: ['Vorläufig', 'Baugrundrisiko', 'Phase 31'] },
+                ]
+            },
+
+            /* ── Materialverteilung ── */
+            'Materialverteilung': {
+                label: 'Projekt-Analysen · Mengen',
+                title: 'Materialverteilung',
+                sub: '4 Materialtypen · Gesamtprojekt',
+                val: '4', unit: 'Typen',
+                delta: { text: '— Verteilung typisch für MFH Schweiz', cls: '' },
+                bar: { w: 58, cls: 'bar-teal' },
+                sections: [
+                    { title: 'Anteile', rows: [
+                        { k: 'Beton C25/30', v: '42.5 m³ · 58%', c: '' },
+                        { k: 'Stahl S355', v: '8.2 t · 22%', c: '' },
+                        { k: 'Mauerwerk Typ A', v: '12.1 m² · 15%', c: '' },
+                        { k: 'Holz KVH', v: '3.4 m³ · 5%', c: 'good' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Die Materialverteilung entspricht <strong>Schweizer Referenzwerten</strong> für Mehrfamilienhäuser. Der Holzanteil von 5% ist <strong>ausbaufähig</strong> — eine Erhöhung auf 12% (Holz-Hybrid-Decken) würde CO₂ um ca. 8% senken.', tags: ['Typisch MFH', 'Holzpotential +7%', 'SIA 2040'] },
+                ]
+            },
+
+            /* ── Nachhaltigkeit ── */
+            'Primärenergie': {
+                label: 'Nachhaltigkeit · Energie',
+                title: 'Primärenergie',
+                sub: 'SIA 380/1 · Heizung + Warmwasser',
+                val: '186', unit: 'kWh/m²a',
+                delta: { text: '▲ 12% über SIA-Zielwert (166 kWh/m²a)', cls: 'warn' },
+                bar: { w: 72, cls: 'bar-amber' },
+                sections: [
+                    { title: 'Energiebilanz', rows: [
+                        { k: 'Heizung', v: '118 kWh/m²a', c: 'warn' },
+                        { k: 'Warmwasser', v: '42 kWh/m²a', c: '' },
+                        { k: 'Lüftung', v: '26 kWh/m²a', c: '' },
+                        { k: 'SIA-Pfadziel', v: '166 kWh/m²a', c: 'good' },
+                        { k: 'MINERGIE-P Limit', v: '30 kWh/m²a (HWB)', c: '' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Der erhöhte Heizenergiebedarf ist auf die <strong>Nordost-Fassade</strong> mit U-Wert 0.22 W/m²K zurückzuführen. Verbesserung des U-Werts auf 0.15 würde <em>−22 kWh/m²a</em> bringen und das SIA-Ziel erreichbar machen.', tags: ['SIA 380/1', 'Massnahme: U-Wert', 'MINERGIE-P grenzwertig'] },
+                ]
+            },
+
+            'Graue Energie': {
+                label: 'Nachhaltigkeit · Ökobilanz',
+                title: 'Graue Energie',
+                sub: 'SIA 2032 · Gesamtlebenszyklus',
+                val: '620', unit: 'MJ/m²',
+                delta: { text: '▼ 8% unter Referenzwert — Gut', cls: 'good' },
+                bar: { w: 42, cls: 'bar-teal' },
+                sections: [
+                    { title: 'Lebenszyklusanteile', rows: [
+                        { k: 'Herstellung (A1–A3)', v: '410 MJ/m²', c: '' },
+                        { k: 'Betrieb (B4–B6)', v: '145 MJ/m²', c: '' },
+                        { k: 'Entsorgung (C)', v: '65 MJ/m²', c: '' },
+                        { k: 'SIA 2032 Referenz', v: '674 MJ/m²', c: '' },
+                        { k: 'Abweichung', v: '−54 MJ/m² (−8%)', c: 'good' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Die graue Energie liegt <strong>unter dem Referenzwert</strong> — ein Resultat des erhöhten Recyclinganteils im Beton (70%). Weiteres Potential: <em>Holz-Hybrid-Decken</em> könnten A1–A3 um weitere 15% senken.', tags: ['SIA 2032', '8% unter Referenz', 'Recycling-Beton'] },
+                ]
+            },
+
+            /* ── Ökologische Indikatoren (Ring cards) ── */
+            'Recyclinganteil Beton': {
+                label: 'Nachhaltigkeit · Materialkreislauf',
+                title: 'Recyclinganteil Beton',
+                sub: 'DGNB-Kriterium ENV 1.1',
+                val: '70', unit: '%',
+                delta: { text: '▲ 15% Steigerungspotential (Ziel 85%)', cls: '' },
+                bar: { w: 70, cls: 'bar-green' },
+                sections: [
+                    { title: 'Details', rows: [
+                        { k: 'Aktueller Anteil', v: '70%', c: '' },
+                        { k: 'DGNB-Mindestziel', v: '60%', c: 'good' },
+                        { k: 'Best-Practice Ziel', v: '85%', c: '' },
+                        { k: 'Lieferant aktuell', v: 'Holcim CH', c: '' },
+                        { k: 'Alternative RC-Beton', v: 'Kistler Beton AG', c: 'good' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Mit <strong>70% Recyclinganteil</strong> wird das DGNB-Mindestziel übertroffen. Lieferantenwechsel zu <em>Kistler Beton AG RC85</em> steigert auf 85% — identischer Preis, zertifiziert nach SN EN 206.', tags: ['DGNB A', 'SIA 2049', '+15% möglich'] },
+                ]
+            },
+
+            'Tageslichtversorgung': {
+                label: 'Nachhaltigkeit · Komfort',
+                title: 'Tageslichtversorgung',
+                sub: 'SIA 380/4 · DA₃₀₀ ≥ 50%',
+                val: '81', unit: '%',
+                delta: { text: '— Nordzone 3.OG unter Grenzwert (41%)', cls: 'warn' },
+                bar: { w: 81, cls: 'bar-teal' },
+                sections: [
+                    { title: 'Zonen', rows: [
+                        { k: 'Büro Süd/West (alle)', v: '≥ 72% DA₃₀₀', c: 'good' },
+                        { k: 'Büro Nord 1.+2.OG', v: '54–58% DA₃₀₀', c: '' },
+                        { k: 'Büro Nord 3.OG (3.03–3.05)', v: '41% DA₃₀₀ ⚠', c: 'bad' },
+                        { k: 'Treppenhäuser', v: 'Ausgenommen', c: '' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Die <strong>Nordzone 3.OG</strong> unterschreitet den SIA-380/4-Grenzwert. Lösung: Fenstervergrösserung um 15% in Räumen 3.03–3.05 (ca. 2.4 m² zusätzlich). Mehrkosten <em>~€1.800</em>, keine statische Relevanz.', tags: ['SIA 380/4', 'Massnahme: +15% Fenster', '3 Räume betroffen'] },
+                ]
+            },
+
+            'Wassereffizienz': {
+                label: 'Nachhaltigkeit · Ressourcen',
+                title: 'Wassereffizienz',
+                sub: 'Regenwassernutzung · Deckungsgrad',
+                val: '56', unit: '%',
+                delta: { text: '▲ Ziel 75% noch nicht erreicht', cls: 'warn' },
+                bar: { w: 56, cls: 'bar-amber' },
+                sections: [
+                    { title: 'Wassernutzung', rows: [
+                        { k: 'Aktueller Deckungsgrad', v: '56%', c: 'warn' },
+                        { k: 'Speichervolumen aktuell', v: '8 m³', c: '' },
+                        { k: 'Empfohlenes Volumen', v: '12 m³', c: 'good' },
+                        { k: 'Mehrkosten Erweiterung', v: '€ 3.800', c: '' },
+                        { k: 'Einsparung pro Jahr', v: '€ 1.200/a', c: 'good' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Erweiterung auf <strong>12 m³</strong> Tank steigert Deckungsgrad auf 75% und amortisiert sich in <em>3.2 Jahren</em>. Einfache Massnahme mit sehr gutem ROI. Empfehlung: in Planung Phase 32 aufnehmen.', tags: ['ROI 3 Jahre', 'Phase 32', 'Ziel 75%'] },
+                ]
+            },
+
+            /* ── Kosten ── */
+            'Gesamtkosten BKP 2': {
+                label: 'Kosten · BKP 2',
+                title: 'Gesamtkosten BKP 2',
+                sub: 'Kostenschätzung Rev.04 · SIA 416',
+                val: '2.84', unit: 'M€',
+                delta: { text: '▲ 4.2% über Budget Rev.03', cls: 'warn' },
+                bar: { w: 74, cls: 'bar-amber' },
+                sections: [
+                    { title: 'Budget vs. Ist', rows: [
+                        { k: 'Budget genehmigt Rev.03', v: '€ 2.72 M', c: '' },
+                        { k: 'Schätzung Rev.04', v: '€ 2.84 M', c: 'warn' },
+                        { k: 'Differenz', v: '+€ 120k (+4.2%)', c: 'bad' },
+                        { k: 'Grösster Kostentreiber', v: 'Aufzug +€62k', c: 'warn' },
+                        { k: 'Reservedeckung', v: '€250k (52%)', c: 'warn' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Die <strong>4.2% Überschreitung</strong> ist durch drei identifizierte Nachtragspositionen erklärbar. Das Baugrundrisiko (28% Wahrscheinlichkeit Seekreide) ist <em>nicht</em> in der aktuellen Reserve abgedeckt.', tags: ['Handlungsbedarf', 'Baugrundrisiko', 'Reserve prüfen'] },
+                ]
+            },
+
+            'Kosten / m² NGF': {
+                label: 'Kosten · Kennwerte',
+                title: 'Kosten / m² NGF',
+                sub: 'SIA 416 · Vergleichswert Markt',
+                val: '2.460', unit: '€/m²',
+                delta: { text: '— +2.5% über Marktmittel (€2.400)', cls: '' },
+                bar: { w: 60, cls: 'bar-teal' },
+                sections: [
+                    { title: 'Benchmarking', rows: [
+                        { k: 'Dieser Bau', v: '€ 2.460/m²', c: '' },
+                        { k: 'Marktmittel CH 2025', v: '€ 2.400/m²', c: '' },
+                        { k: 'Oberes Quartil', v: '€ 2.700/m²', c: '' },
+                        { k: 'Abweichung Markt', v: '+2.5%', c: '' },
+                        { k: 'Bewertung', v: 'Marktüblich', c: 'good' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Der Kennwert liegt im <strong>marktüblichen Bereich</strong>. Kein unmittelbarer Handlungsbedarf. Durch Optimierung der Wanddicken und RC-Beton könnte auf <em>€2.410/m²</em> gesenkt werden.', tags: ['Marktüblich', 'Benchmarking 2025', 'Optimierungspotential'] },
+                ]
+            },
+
+            'Betriebskosten / Jahr': {
+                label: 'Kosten · Betrieb',
+                title: 'Betriebskosten / Jahr',
+                sub: 'Hochrechnung inkl. Energie & Wartung',
+                val: '48.2', unit: 'k€/a',
+                delta: { text: '▼ −6% vs. Vorjahr — positiv', cls: 'good' },
+                bar: { w: 38, cls: 'bar-teal' },
+                sections: [
+                    { title: 'Kostenstruktur', rows: [
+                        { k: 'Energie (Wärme + Strom)', v: '€ 22.4k/a', c: '' },
+                        { k: 'Wasser & Entsorgung', v: '€ 8.1k/a', c: '' },
+                        { k: 'Wartung & Inspektion', v: '€ 12.5k/a', c: '' },
+                        { k: 'Verwaltung & Versicherung', v: '€ 5.2k/a', c: '' },
+                        { k: 'Vorjahreswert', v: '€ 51.3k/a', c: '' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Die Betriebskosten sind <strong>rückläufig</strong> dank verbesserter Gebäudehülle. PV-Anlage (68 kWp) würde Energiekosten um weitere <em>€8.4k/a</em> senken — neuer Zielwert: €39.8k/a.', tags: ['Trend positiv', 'PV-Potential', 'MINERGIE empfohlen'] },
+                ]
+            },
+
+            'Lebenszykluskosten': {
+                label: 'Kosten · Lebenszyklus',
+                title: 'Lebenszykluskosten',
+                sub: 'LCC · 60-Jahr-Betrachtung SIA 480',
+                val: '8.6', unit: 'M€',
+                delta: { text: '— Schätzung ±15% (Planungsphase)', cls: '' },
+                bar: { w: 50, cls: 'bar-amber' },
+                sections: [
+                    { title: 'LCC Struktur', rows: [
+                        { k: 'Investitionskosten (BKP 2)', v: '€ 2.84 M', c: '' },
+                        { k: 'Betrieb 60 Jahre', v: '€ 2.89 M', c: '' },
+                        { k: 'Instandhaltung 60 Jahre', v: '€ 1.82 M', c: '' },
+                        { k: 'Rückbau / Entsorgung', v: '€ 1.05 M', c: '' },
+                        { k: 'Gesamtbarwert (3% Zins)', v: '€ 8.6 M', c: 'warn' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Die Lebenszykluskosten sind <strong>plausibel für Typ MFH CH</strong>. Grösster Hebel: PV + MINERGIE-P Nachrüstung würde LCC um ca. <em>€0.6 M</em> senken (7%). Empfehlung: Variantenvergleich in Phase 32.', tags: ['SIA 480', '60-Jahres-LCC', 'Variantenvergleich'] },
+                ]
+            },
+
+            /* ── Verbesserungen ── */
+            'Wanddicke IfcWall_01 optimieren': {
+                label: 'Verbesserungen · Priorität Hoch 🔴',
+                title: 'Wanddicke optimieren',
+                sub: 'IfcWall_01 · BKP 211',
+                val: '−18', unit: '% CO₂',
+                delta: { text: '▼ Durch Materialwechsel C30/37', cls: 'good' },
+                bar: { w: 80, cls: 'bar-teal' },
+                sections: [
+                    { title: 'Massnahme', rows: [
+                        { k: 'Aktuelle Dicke', v: '30 cm', c: 'warn' },
+                        { k: 'Optimierte Dicke', v: '27 cm', c: 'good' },
+                        { k: 'Materialwechsel', v: 'C25 → C30/37', c: '' },
+                        { k: 'CO₂-Einsparung', v: '−0.18 t/Element', c: 'good' },
+                        { k: 'Kosteneinsparung', v: '−€ 4.200', c: 'good' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Die Wanddicke von 30 cm ist <strong>statisch überdimensioniert</strong> (erforderlich: 24 cm laut SIA 262). C30/37 erlaubt 27 cm bei gleicher Traglast. <em>Aufwand niedrig</em> — Änderung im Modell in <1h.', tags: ['Priorität Hoch', 'CO₂ −18%', '−€4.200', 'Aufwand Niedrig'] },
+                ]
+            },
+
+            'Recycling-Beton R25 für Bodenplatte': {
+                label: 'Verbesserungen · Priorität Hoch 🔴',
+                title: 'Recycling-Beton Bodenplatte',
+                sub: 'BKP 211 · SN EN 206:2021',
+                val: '−22', unit: '% Gr.E.',
+                delta: { text: '▼ Graue Energie Bodenplatte', cls: 'good' },
+                bar: { w: 75, cls: 'bar-teal' },
+                sections: [
+                    { title: 'Details', rows: [
+                        { k: 'Betroffen', v: 'Bodenplatte UG', c: '' },
+                        { k: 'Aktuell', v: 'Beton C25 konventionell', c: 'warn' },
+                        { k: 'Neu', v: 'RC-Beton R25 zertifiziert', c: 'good' },
+                        { k: 'Graue Energie −', v: '−22% (−91 MJ/m²)', c: 'good' },
+                        { k: 'Preisdifferenz', v: 'Identisch (±0)', c: 'good' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Wechsel zu <em>RC-Beton R25</em> ist <strong>kostenäquvialent</strong> und norm-konform nach SN EN 206:2021. DGNB-Punktgewinn von +4. Lieferant: <em>Kistler Beton AG</em> — bereits in Region Zürich aktiv.', tags: ['Priorität Hoch', 'DGNB +4', 'Kostenneutral', 'Sofort umsetzbar'] },
+                ]
+            },
+
+            'Photovoltaik-Integration Dachfläche': {
+                label: 'Verbesserungen · Priorität Mittel 🟡',
+                title: 'PV-Anlage Dach',
+                sub: '320 m² Dachfläche · 68 kWp',
+                val: '68', unit: 'kWp',
+                delta: { text: '▼ Eigenversorgung +38%', cls: 'good' },
+                bar: { w: 55, cls: 'bar-teal' },
+                sections: [
+                    { title: 'Anlage', rows: [
+                        { k: 'Nutzbare Dachfläche', v: '320 m²', c: '' },
+                        { k: 'Installierte Leistung', v: '68 kWp', c: '' },
+                        { k: 'Jahresertrag (est.)', v: '62.000 kWh/a', c: 'good' },
+                        { k: 'Eigenversorgungsgrad', v: '+38%', c: 'good' },
+                        { k: 'Investitionskosten', v: '€ 78.000', c: '' },
+                        { k: 'Amortisation', v: '11 Jahre', c: '' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'PV-Integration ist <strong>wirtschaftlich sinnvoll</strong> (Amortisation 11 Jahre, Lebensdauer 25+ Jahre). Kombiniert mit dem geplanten MINERGIE-P-Upgrade wäre <em>Eigenversorgungsgrad 55%</em> erreichbar. Empfehlung: in Phase 31 einplanen.', tags: ['ROI 11 Jahre', 'MINERGIE kombinierbar', 'Phase 31'] },
+                ]
+            },
+
+            'Fensterflächen Nordseite 3.OG anpassen': {
+                label: 'Verbesserungen · Priorität Mittel 🟡',
+                title: 'Fenster Nordseite 3.OG',
+                sub: 'Räume 3.03–3.05 · DA₃₀₀',
+                val: '+15', unit: '% Fenster',
+                delta: { text: '▲ Tageslicht +9% in Nordzone', cls: 'good' },
+                bar: { w: 40, cls: 'bar-teal' },
+                sections: [
+                    { title: 'Betroffene Räume', rows: [
+                        { k: 'Raum 3.03 (Nord)', v: '41% DA₃₀₀ → 50%', c: 'warn' },
+                        { k: 'Raum 3.04 (Nord)', v: '43% DA₃₀₀ → 52%', c: 'warn' },
+                        { k: 'Raum 3.05 (Nord)', v: '40% DA₃₀₀ → 49%', c: 'bad' },
+                        { k: 'Zusätzliche Fensterfläche', v: '2.4 m²', c: '' },
+                        { k: 'Mehrkosten', v: '~€ 1.800', c: 'good' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Minimaler Eingriff mit <strong>hohem Komfortgewinn</strong>. Keine statische Relevanz da Ausfachungsmauerwerk. <em>€1.800 Mehrkosten</em> sind vernachlässigbar im Projektzusammenhang. Sofort in IFC-Modell eintragen.', tags: ['SIA 380/4', 'Aufwand Niedrig', '€1.800', 'Sofort'] },
+                ]
+            },
+
+            'Regenwassertank auf 12 m³ erweitern': {
+                label: 'Verbesserungen · Priorität Niedrig 🟢',
+                title: 'Regenwassertank 12 m³',
+                sub: 'Erweiterung von 8 m³',
+                val: '+19', unit: '% Effiz.',
+                delta: { text: '▼ Deckungsgrad 56% → 75%', cls: 'good' },
+                bar: { w: 30, cls: 'bar-teal' },
+                sections: [
+                    { title: 'Wirtschaftlichkeit', rows: [
+                        { k: 'Aktuelle Kapazität', v: '8 m³', c: '' },
+                        { k: 'Zielkapazität', v: '12 m³', c: 'good' },
+                        { k: 'Investitionskosten', v: '€ 3.800', c: '' },
+                        { k: 'Einsparung', v: '€ 1.200/a', c: 'good' },
+                        { k: 'Amortisation', v: '3.2 Jahre', c: 'good' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Sehr gutes Kosten-Nutzen-Verhältnis: <strong>ROI 3.2 Jahre</strong>. Einfache Massnahme — Erweiterung im gleichen Schacht möglich. Empfehlung: <em>sofort in Phase 31</em> beauftragen, da Tiefbau-Synergien nutzbar.', tags: ['ROI 3.2 Jahre', 'Synergien Tiefbau', 'Sofort', 'Phase 31'] },
+                ]
+            },
+
+            'BIM-Clash-Kontrolle Haustechnik': {
+                label: 'Verbesserungen · Priorität Niedrig 🟢',
+                title: 'BIM Clash-Kontrolle',
+                sub: '14 Kollisionen · HLKSE / Rohbau',
+                val: '14', unit: 'Clashes',
+                delta: { text: '⚠ 3 davon kritisch — sofort bereinigen', cls: 'bad' },
+                bar: { w: 85, cls: 'bar-amber' },
+                sections: [
+                    { title: 'Clash-Übersicht', rows: [
+                        { k: 'Kritisch (sofort)', v: '3 Clashes 🔴', c: 'bad' },
+                        { k: 'Wichtig (vor LV)', v: '6 Clashes 🟡', c: 'warn' },
+                        { k: 'Minor (Ausführung)', v: '5 Clashes 🟢', c: '' },
+                        { k: 'Häufigste Ursache', v: 'Lüftung ⊕ Unterzug', c: 'warn' },
+                        { k: 'LOI-Status', v: 'LOI 350 unvollständig', c: 'warn' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Die <strong>3 kritischen Clashes</strong> (Lüftungskanal ⊕ Unterzug UG, 2× Sprinkler ⊕ Deckenhohlraum) müssen vor der Ausschreibung bereinigt sein. <em>47 fehlende Properties</em> verfälschen automatische Mengenermittlung um ±6%.', tags: ['Vor Ausschreibung', 'LOI 350', '47 Properties offen', 'Priorität Hoch'] },
+                ]
+            },
+
+            /* ── KI-Analyse Karten ── */
+            'Tragsystem & Materialwahl': {
+                label: 'KI-Analyse · Tragwerk',
+                title: 'Tragsystem & Materialwahl',
+                sub: 'KI-Modul Statik Beta · Konfidenz 80%',
+                val: '80', unit: '% Konfidenz',
+                delta: { text: '— Stahlbetonskelett mit Wandscheiben', cls: '' },
+                bar: { w: 80, cls: 'bar-teal' },
+                sections: [
+                    { title: 'Befunde', rows: [
+                        { k: 'System', v: 'Stahlbetonskelett', c: '' },
+                        { k: 'Erf. Wanddicke (SIA 262)', v: '24 cm', c: 'good' },
+                        { k: 'Ausgeführt', v: '30 cm (+25%)', c: 'warn' },
+                        { k: 'Mehrgewicht / lfm', v: '+360 kg', c: 'warn' },
+                        { k: 'Direkte CO₂-Wirkung', v: '+13%', c: 'bad' },
+                    ]},
+                    { title: 'Zusammenhänge', text: 'Die <strong>Überdimensionierung der Wandscheiben</strong> hat eine kausale Kette: höheres Eigengewicht → höhere Fundamentlast (+2.1 kN/m²) → potentiell aufwändigere Gründung. Massnahme: Dicke auf 27 cm reduzieren, C30/37 einsetzen.', tags: ['SIA 262', 'Massnahme vorhanden', 'Konfidenz 80%'] },
+                ]
+            },
+
+            'Systemische Wechselwirkungen': {
+                label: 'KI-Analyse · Energie & Hülle',
+                title: 'Systemische Wechselwirkungen',
+                sub: 'KI-Modul Energie v2.1 · Konfidenz 62%',
+                val: '62', unit: '% Konfidenz',
+                delta: { text: '⚠ MINERGIE-P-Grenzwert überschritten', cls: 'warn' },
+                bar: { w: 62, cls: 'bar-amber' },
+                sections: [
+                    { title: 'Wechselwirkungskette', rows: [
+                        { k: 'Nordost-Fassade U-Wert', v: '0.22 W/m²K', c: 'warn' },
+                        { k: 'Mehrbedarf Heizung', v: '+14 kWh/m²a', c: 'warn' },
+                        { k: 'MINERGIE-P HWB Limit', v: '30 kWh/m²a', c: '' },
+                        { k: 'Tatsächlicher HWB', v: '34 kWh/m²a', c: 'bad' },
+                        { k: 'Mehrkosten Betrieb 40J', v: '+€ 112.000', c: 'bad' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Eine <strong>kausale Dreifach-Abhängigkeit</strong>: Fassaden-U-Wert → Heizenergie → Zertifizierung → LCC. Lösung: U-Wert Nordseite auf 0.15 W/m²K verbessern. <em>Mehrkosten ~€18k</em>, Einsparung über 40 Jahre: €112k.', tags: ['MINERGIE-P', 'Konfidenz 62%', 'U-Wert Nordseite', '€112k Hebel'] },
+                ]
+            },
+
+            'IFC-Modellqualität': {
+                label: 'KI-Analyse · Datenqualität',
+                title: 'IFC-Modellqualität',
+                sub: 'IFC-Validierungsmodul · Konfidenz 96%',
+                val: '81', unit: '/100',
+                delta: { text: '— 14 Clashes · 47 fehlende Properties', cls: 'warn' },
+                bar: { w: 81, cls: 'bar-teal' },
+                sections: [
+                    { title: 'Qualitätspunkte', rows: [
+                        { k: 'Geometrie', v: '88/100', c: '' },
+                        { k: 'Properties (LOI)', v: '72/100', c: 'warn' },
+                        { k: 'Klassifikation', v: '85/100', c: '' },
+                        { k: 'Clashes', v: '14 (3 kritisch)', c: 'bad' },
+                        { k: 'Gesamtscore', v: '81/100', c: '' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: '<strong>LOI 350 noch nicht vollständig</strong> — 47 Elemente fehlen Pflicht-Properties. Die 3 kritischen Clashes müssen vor Ausschreibung bereinigt sein. Mit diesen Korrekturen wäre Score <em>92/100</em> erreichbar.', tags: ['Konfidenz 96%', 'LOI 350', '47 Properties', 'Score 81/100'] },
+                ]
+            },
+
+            'Kostentreiber & Risiken': {
+                label: 'KI-Analyse · Kosten & Risiken',
+                title: 'Kostentreiber & Risiken',
+                sub: 'KI-Modul Kosten · Konfidenz 65%',
+                val: '65', unit: '% Konfidenz',
+                delta: { text: '⚠ Baugrundrisiko nicht abgedeckt', cls: 'warn' },
+                bar: { w: 65, cls: 'bar-amber' },
+                sections: [
+                    { title: 'Top-Risiken', rows: [
+                        { k: 'Baugrund (Seekreide 28%)', v: '+€180–240k', c: 'bad' },
+                        { k: 'Fassade hochgestuft', v: '+€ 38k', c: 'warn' },
+                        { k: 'Aufzug nachgeplant', v: '+€ 62k', c: 'warn' },
+                        { k: 'Wanddicke', v: '+€ 4.2k', c: '' },
+                        { k: 'Reserve aktuell', v: '€ 250k', c: 'warn' },
+                    ]},
+                    { title: 'KI-Einschätzung', text: 'Die Reserve von <strong>€250k deckt nur Normalrisiken</strong>. Bei Baugrundrisiko Seekreide (28% Wahrscheinlichkeit) fehlen bis zu €-40k. <em>Sofortmassnahme: Baugrundgutachten Phase 31</em> in Auftrag geben.', tags: ['Konfidenz 65%', 'Baugrundgutachten sofort', 'Reserve prüfen'] },
+                ]
+            },
+        };
+
+        /* ── PANEL STATE ── */
+        const midScroll   = document.getElementById('mid-scroll');
+        const midHeader   = document.querySelector('#mid-pane .pane-header-title');
+        const midPill     = document.querySelector('#mid-pane .pane-header-pill');
+        const midActions  = document.querySelector('#mid-pane .action-row');
+        let   activeCard  = null;
+
+        /* ── BUILD PANEL HTML ── */
+        function buildPanel(data) {
+            const deltaCol = data.delta.cls === 'good' ? 'var(--green)' : data.delta.cls === 'warn' ? 'var(--amber)' : data.delta.cls === 'bad' ? 'var(--red)' : 'var(--text-dim)';
+            let html = `
+                <div class="panel-back-btn" onclick="restoreDefaultPanel()">← Zurück zu IfcWall_01</div>
+                <div class="panel-hero">
+                    <div class="panel-hero-label">${data.label}</div>
+                    <div class="panel-hero-title">${data.title}</div>
+                    <div class="panel-hero-sub">${data.sub}</div>
+                    <div class="panel-hero-val">${data.val}<span class="panel-hero-unit">${data.unit}</span></div>
+                    <div class="panel-hero-delta" style="color:${deltaCol}">${data.delta.text}</div>
+                    <div class="panel-hero-bar progress-bar-bg" style="margin-top:8px"><div class="progress-bar ${data.bar.cls}" style="width:${data.bar.w}%"></div></div>
+                </div>`;
+
+            data.sections.forEach(sec => {
+                html += `<div class="panel-section"><div class="panel-section-title">${sec.title}</div>`;
+                if (sec.rows) {
+                    sec.rows.forEach(r => {
+                        const cls = r.c === 'good' ? 'good' : r.c === 'warn' ? 'warn' : r.c === 'bad' ? 'bad' : '';
+                        html += `<div class="panel-row"><span class="panel-row-key">${r.k}</span><span class="panel-row-val ${cls}">${r.v}</span></div>`;
+                    });
+                }
+                if (sec.text) {
+                    html += `<div class="panel-text" style="margin-top:${sec.rows?'8px':'0'}">${sec.text}</div>`;
+                }
+                if (sec.tags) {
+                    html += `<div class="panel-tag-row">${sec.tags.map(t => `<span class="panel-tag">${t}</span>`).join('')}</div>`;
+                }
+                html += `</div>`;
+            });
+
+            return html;
+        }
+
+        /* ── SHOW IN PANEL ── */
+        function showInPanel(data) {
+            midScroll.innerHTML = buildPanel(data);
+            midScroll.classList.add('panel-animate');
+            setTimeout(() => midScroll.classList.remove('panel-animate'), 300);
+            midHeader.textContent = 'Analyse';
+            midPill.textContent   = 'Karte';
+            midActions.style.display = 'none';
+            midScroll.scrollTop = 0;
+        }
+
+        /* ── RESTORE DEFAULT ── */
+        window.restoreDefaultPanel = function() {
+            const def = document.getElementById('mid-default-view');
+            midScroll.innerHTML = '';
+            midScroll.appendChild(def);
+            def.style.display = '';
+            midScroll.classList.add('panel-animate');
+            setTimeout(() => midScroll.classList.remove('panel-animate'), 300);
+            midHeader.textContent = 'Eigenschaften';
+            midPill.textContent   = 'Aktiv';
+            midActions.style.display = '';
+            if (activeCard) { activeCard.classList.remove('card-selected'); activeCard = null; }
+        };
+
+        /* ── REGISTER ALL CARDS ── */
+        const SELECTORS = [
+            { sel: '.metric-card',  key: el => el.querySelector('.metric-label')?.textContent?.trim() },
+            { sel: '.spark-card',   key: el => el.querySelector('.spark-title')?.textContent?.trim() },
+            { sel: '.ring-card',    key: el => el.querySelector('.ring-title')?.textContent?.trim() },
+            { sel: '.full-card',    key: el => el.querySelector('.metric-label')?.textContent?.trim() },
+            { sel: '.improve-item', key: el => el.querySelector('.improve-title')?.textContent?.trim() },
+            { sel: '.ki-card',      key: el => el.querySelector('.ki-card-title')?.textContent?.trim() },
+        ];
+
+        SELECTORS.forEach(({ sel, key }) => {
+            document.querySelectorAll(sel).forEach(card => {
+                const k = key(card);
+                if (!k || !CARDS[k]) return;
+                card.setAttribute('data-clickable', '1');
+                card.addEventListener('click', () => {
+                    if (activeCard) activeCard.classList.remove('card-selected');
+                    card.classList.add('card-selected');
+                    activeCard = card;
+                    showInPanel(CARDS[k]);
+                });
+            });
+        });
+
+    })();
     </script>
 </body>
 </html>
